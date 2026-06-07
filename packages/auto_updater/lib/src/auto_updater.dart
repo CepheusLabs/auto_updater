@@ -96,6 +96,16 @@ class AutoUpdater {
   Future<void> setScheduledCheckInterval(int interval) {
     return _platform.setScheduledCheckInterval(interval);
   }
+
+  /// Sets the EdDSA (ed25519) public key, base64-encoded, used to verify the
+  /// signature of update artifacts.
+  ///
+  /// Call this before [setFeedURL]. Windows only (WinSparkle >= 0.9); on macOS
+  /// this is a no-op because Sparkle reads its Ed25519 key from the
+  /// `SUPublicEDKey` Info.plist entry.
+  Future<void> setEdDSAPublicKey(String base64PublicKey) {
+    return _platform.setEdDSAPublicKey(base64PublicKey);
+  }
 }
 
 final autoUpdater = AutoUpdater.instance;

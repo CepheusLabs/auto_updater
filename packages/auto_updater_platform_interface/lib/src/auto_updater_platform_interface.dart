@@ -42,4 +42,17 @@ abstract class AutoUpdaterPlatform extends PlatformInterface {
       'setScheduledCheckInterval() has not been implemented.',
     );
   }
+
+  /// Sets the EdDSA (ed25519) public key, base64-encoded, used to verify the
+  /// signature of update artifacts.
+  ///
+  /// Windows only (WinSparkle >= 0.9). Call this before [setFeedURL]; the key
+  /// must be configured before WinSparkle is initialized. On macOS this is a
+  /// no-op because Sparkle reads its Ed25519 key from the `SUPublicEDKey`
+  /// Info.plist entry rather than at runtime.
+  Future<void> setEdDSAPublicKey(String base64PublicKey) async {
+    throw UnimplementedError(
+      'setEdDSAPublicKey() has not been implemented.',
+    );
+  }
 }

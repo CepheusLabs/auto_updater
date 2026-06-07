@@ -1,3 +1,8 @@
+## 1.0.1
+
+* [CepheusLabs fork] Add `AutoUpdater.setEdDSAPublicKey(String base64PublicKey)`
+  facade method (call before `setFeedURL`). Windows-only effect; no-op on macOS.
+
 ## 1.0.0
 
 * First major release.

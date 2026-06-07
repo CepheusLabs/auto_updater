@@ -86,6 +86,14 @@ void AutoUpdaterWindowsPlugin::HandleMethodCall(
     auto_updater.SetScheduledCheckInterval(interval);
     result->Success(flutter::EncodableValue(true));
 
+  } else if (method_name.compare("setEdDSAPublicKey") == 0) {
+    const flutter::EncodableMap& args =
+        std::get<flutter::EncodableMap>(*method_call.arguments());
+    std::string eddsaPublicKey = std::get<std::string>(
+        args.at(flutter::EncodableValue("eddsaPublicKey")));
+    auto_updater.SetEdDSAPublicKey(eddsaPublicKey);
+    result->Success(flutter::EncodableValue(true));
+
   } else {
     result->NotImplemented();
   }

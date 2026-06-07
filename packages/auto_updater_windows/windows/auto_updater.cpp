@@ -1,4 +1,4 @@
-#include "WinSparkle-0.8.1/include/winsparkle.h"
+#include "WinSparkle-0.9.3/include/winsparkle.h"
 
 #include <flutter/event_channel.h>
 #include <flutter/method_channel.h>
@@ -29,6 +29,7 @@ class AutoUpdater {
   virtual ~AutoUpdater();
 
   void AutoUpdater::SetFeedURL(std::string feedURL);
+  void AutoUpdater::SetEdDSAPublicKey(std::string base64PublicKey);
   void AutoUpdater::CheckForUpdates();
   void AutoUpdater::CheckForUpdatesWithoutUI();
   void AutoUpdater::SetScheduledCheckInterval(int interval);
@@ -40,6 +41,12 @@ class AutoUpdater {
  private:
   static AutoUpdater* lazySingleton;
   std::unique_ptr<flutter::EventSink<flutter::EncodableValue>> event_sink_;
+  // EdDSA (ed25519) public key, base64-encoded, used to verify update
+  // signatures. Cached here so it can be applied right before
+  // win_sparkle_init() regardless of the order SetEdDSAPublicKey / SetFeedURL
+  // are invoked from Dart. WinSparkle requires all configuration (including the
+  // public key) to be set before win_sparkle_init().
+  std::string eddsa_public_key_;
 };
 
 AutoUpdater* AutoUpdater::lazySingleton = nullptr;
@@ -60,6 +67,14 @@ AutoUpdater::~AutoUpdater() {}
 
 void AutoUpdater::SetFeedURL(std::string feedURL) {
   win_sparkle_set_appcast_url(feedURL.c_str());
+
+  // The EdDSA public key must be configured before win_sparkle_init(). Applying
+  // the cached key here (rather than in SetEdDSAPublicKey) makes the Dart-side
+  // call order between setEdDSAPublicKey() and setFeedURL() irrelevant.
+  if (!eddsa_public_key_.empty()) {
+    win_sparkle_set_eddsa_public_key(eddsa_public_key_.c_str());
+  }
+
   win_sparkle_init();
 
   win_sparkle_set_error_callback(__onErrorCallback);
@@ -73,6 +88,13 @@ void AutoUpdater::SetFeedURL(std::string feedURL) {
   // win_sparkle_set_update_postponed_callback(__onUpdatePostponedCallback);
   // win_sparkle_set_update_dismissed_callback(__onUpdateDismissedCallback);
   // win_sparkle_set_user_run_installer_callback(__onUserRunInstallerCallback);
+}
+
+void AutoUpdater::SetEdDSAPublicKey(std::string base64PublicKey) {
+  // Cache only. The key is actually handed to WinSparkle in SetFeedURL(), right
+  // before win_sparkle_init(), because win_sparkle_set_eddsa_public_key() must
+  // be called before initialization to take effect.
+  eddsa_public_key_ = base64PublicKey;
 }
 
 void AutoUpdater::CheckForUpdates() {

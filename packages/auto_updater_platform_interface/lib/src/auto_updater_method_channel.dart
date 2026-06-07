@@ -44,4 +44,12 @@ class MethodChannelAutoUpdater extends AutoUpdaterPlatform {
     };
     await methodChannel.invokeMethod('setScheduledCheckInterval', arguments);
   }
+
+  @override
+  Future<void> setEdDSAPublicKey(String base64PublicKey) async {
+    final Map<String, dynamic> arguments = {
+      'eddsaPublicKey': base64PublicKey,
+    };
+    await methodChannel.invokeMethod('setEdDSAPublicKey', arguments);
+  }
 }

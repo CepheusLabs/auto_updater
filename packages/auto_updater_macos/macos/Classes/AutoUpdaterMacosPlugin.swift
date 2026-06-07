@@ -58,6 +58,13 @@ public class AutoUpdaterMacosPlugin: NSObject, FlutterPlugin,FlutterStreamHandle
             autoUpdater.setScheduledCheckInterval(interval)
             result(true)
             break
+        case "setEdDSAPublicKey":
+            // No-op on macOS: Sparkle reads its Ed25519 public key from the
+            // `SUPublicEDKey` Info.plist entry, not at runtime. Handled here so
+            // cross-platform callers can invoke setEdDSAPublicKey()
+            // unconditionally without a MissingPluginException.
+            result(true)
+            break
         default:
             result(FlutterMethodNotImplemented)
         }
